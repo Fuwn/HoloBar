@@ -21,7 +21,7 @@ class CharacterFetcher: ObservableObject {
                   let html = String(data: data, encoding: .utf8) else { return }
 
             DispatchQueue.main.async {
-                self.characters = self.parseHTML(html: html)
+                self.fetchAffiliations(for: self.parseHTML(html: html))
             }
         }
 
@@ -51,5 +51,41 @@ class CharacterFetcher: ObservableObject {
         }
 
         return fetchedCharacters
+    }
+
+    private func fetchAffiliations(for characters: [Character]) {
+        let group = DispatchGroup()
+        var updatedCharacters: [Character] = []
+
+        for character in characters {
+            group.enter()
+
+            let task = URLSession.shared.dataTask(with: character.profileURL) { data, _, error in
+                defer { group.leave() }
+
+                guard let data = data, error == nil,
+                      let html = String(data: data, encoding: .utf8) else { return }
+
+                do {
+                    let document = try SwiftSoup.parse(html)
+
+                    if let affiliationElement = try? document.select("#affiliation a").first(),
+                       let affiliation = try? affiliationElement.text()
+                    {
+                        updatedCharacters.append(Character(name: "\(character.name) (\(affiliation))", profileURL: character.profileURL))
+                    } else {
+                        updatedCharacters.append(character)
+                    }
+                } catch {
+                    updatedCharacters.append(character)
+                }
+            }
+
+            task.resume()
+        }
+
+        group.notify(queue: .main) {
+            self.characters = updatedCharacters
+        }
     }
 }
