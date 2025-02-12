@@ -11,8 +11,16 @@ struct HoloBarApp: App {
                     Text("Loading …")
                 } else {
                     ForEach(fetcher.characters) { character in
-                        Button(character.name) {
+                        Button(action: {
                             NSWorkspace.shared.open(character.profileURL)
+                        }) {
+                            HStack {
+                                AsyncImage(url: character.avatarURL, content: { $0 }, placeholder: {
+                                    Image(systemName: "person.crop.circle")
+                                })
+
+                                Text(character.name)
+                            }
                         }
                     }
                 }

@@ -43,11 +43,20 @@ class CharacterFetcher: ObservableObject {
                 {
                     let name = try nameElement.text()
 
-                    fetchedCharacters.append(Character(name: name, profileURL: profileURL))
+                    fetchedCharacters
+                        .append(
+                            Character(
+                                name: name,
+                                profileURL: profileURL,
+                                avatarURL: profileURL // Avatar URLs are fetched in ``fetchAffiliations``
+                            )
+                        )
                 }
             }
         } catch {
-            fetchedCharacters.append(Character(name: "Error parsing HTML", profileURL: URL(string: "#")!))
+            let blankURL = URL(string: "#")!
+
+            fetchedCharacters.append(Character(name: "Error parsing HTML", profileURL: blankURL, avatarURL: blankURL))
         }
 
         return fetchedCharacters
@@ -60,10 +69,14 @@ class CharacterFetcher: ObservableObject {
         for character in characters {
             group.enter()
 
-            let task = URLSession.shared.dataTask(with: character.profileURL) { data, _, error in
+            let task = URLSession.shared.dataTask(with: character.profileURL) {
+                data,
+                    _,
+                    error in
                 defer { group.leave() }
 
-                guard let data = data, error == nil,
+                guard let data = data,
+                      error == nil,
                       let html = String(data: data, encoding: .utf8) else { return }
 
                 do {
@@ -72,7 +85,15 @@ class CharacterFetcher: ObservableObject {
                     if let affiliationElement = try? document.select("#affiliation a").first(),
                        let affiliation = try? affiliationElement.text()
                     {
-                        updatedCharacters.append(Character(name: "\(character.name) (\(affiliation))", profileURL: character.profileURL))
+                        updatedCharacters
+                            .append(
+                                Character(
+                                    name: "\(character.name) (\(affiliation))",
+                                    profileURL: character.profileURL,
+                                    avatarURL: (try? document.select("#left img").first()?.attr("data-src"))
+                                        .flatMap { URL(string: $0) } ?? character.avatarURL
+                                )
+                            )
                     } else {
                         updatedCharacters.append(character)
                     }
