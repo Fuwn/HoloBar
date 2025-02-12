@@ -1,5 +1,3 @@
-# https://github.com/Aidoku/Aidoku/blob/main/.gitignore
-
 # Xcode
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
@@ -13,6 +11,7 @@
 *.xcodeproj/*.xcworkspace/xcshareddata/*
 !*.xcodeproj/*.xcworkspace/xcshareddata/swiftpm/
 
+build/
+
 # Other
 .DS_Store
-
