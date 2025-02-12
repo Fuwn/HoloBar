@@ -26,17 +26,15 @@ struct HoloBarApp: App {
                 }
 
                 Divider()
+
                 #if DEBUG
                     Button("Simulate Day Change") {
                         NotificationCenter.default.post(name: .NSCalendarDayChanged, object: nil)
                     }
                 #endif
-                Button("Refresh") {
-                    refreshCharacters()
-                }
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
-                }
+
+                Button("Refresh", action: refreshCharacters)
+                Button("Quit", action: { NSApplication.shared.terminate(nil) })
             }
             .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
                 refreshCharacters()
