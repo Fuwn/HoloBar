@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct HoloBarApp: App {
     @StateObject private var fetcher = CharacterFetcher()
+    @State private var showAvatars = false
 
     var body: some Scene {
         MenuBarExtra {
@@ -15,9 +16,11 @@ struct HoloBarApp: App {
                             NSWorkspace.shared.open(character.profileURL)
                         }) {
                             HStack {
-                                AsyncImage(url: character.avatarURL, content: { $0 }, placeholder: {
-                                    Image(systemName: "person.crop.circle")
-                                })
+                                if showAvatars {
+                                    AsyncImage(url: character.avatarURL, content: { $0 }, placeholder: {
+                                        Image(systemName: "person.crop.circle")
+                                    })
+                                }
 
                                 Text(character.name)
                             }
@@ -32,6 +35,10 @@ struct HoloBarApp: App {
                         NotificationCenter.default.post(name: .NSCalendarDayChanged, object: nil)
                     }
                 #endif
+
+                Button("\(showAvatars ? "Hide" : "Show") Avatars") {
+                    showAvatars.toggle()
+                }
 
                 Button("Refresh", action: refreshCharacters)
                 Button("Quit", action: { NSApplication.shared.terminate(nil) })
