@@ -17,9 +17,23 @@ struct HoloBarApp: App {
                         }) {
                             HStack {
                                 if showAvatars {
-                                    AsyncImage(url: character.avatarURL, content: { $0 }, placeholder: {
-                                        Image(systemName: "person.crop.circle")
-                                    })
+                                    AsyncImage(url: character.avatarURL) { phase in
+                                        if let image = phase.image {
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                        } else if phase.error != nil {
+                                            Image(systemName: "person.crop.circle.badge.exclamationmark")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundStyle(.gray)
+                                        } else {
+                                            Image(systemName: "person.crop.circle")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .foregroundStyle(.gray)
+                                        }
+                                    }
                                 }
 
                                 Text(character.name)
