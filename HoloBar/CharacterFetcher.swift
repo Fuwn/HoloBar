@@ -48,7 +48,9 @@ class CharacterFetcher: ObservableObject {
                             Character(
                                 name: name,
                                 profileURL: profileURL,
-                                avatarURL: profileURL // Avatar URLs are fetched in ``fetchAffiliations``
+                                avatarURL: profileURL, // Avatar URLs are fetched in ``fetchAffiliations``
+                                rawName: name,
+                                affiliation: ""
                             )
                         )
                 }
@@ -56,7 +58,16 @@ class CharacterFetcher: ObservableObject {
         } catch {
             let blankURL = URL(string: "#")!
 
-            fetchedCharacters.append(Character(name: "Error parsing HTML", profileURL: blankURL, avatarURL: blankURL))
+            fetchedCharacters
+                .append(
+                    Character(
+                        name: "Error parsing HTML",
+                        profileURL: blankURL,
+                        avatarURL: blankURL,
+                        rawName: "",
+                        affiliation: ""
+                    )
+                )
         }
 
         return fetchedCharacters
@@ -91,7 +102,9 @@ class CharacterFetcher: ObservableObject {
                                     name: "\(character.name) (\(affiliation))",
                                     profileURL: character.profileURL,
                                     avatarURL: (try? document.select("#left img").first()?.attr("data-src"))
-                                        .flatMap { URL(string: $0) } ?? character.avatarURL
+                                        .flatMap { URL(string: $0) } ?? character.avatarURL,
+                                    rawName: character.name,
+                                    affiliation: affiliation
                                 )
                             )
                     } else {

@@ -5,4 +5,6 @@ struct Character: Identifiable {
     let name: String
     let profileURL: URL
     let avatarURL: URL
+    let rawName: String
+    let affiliation: String
 }
