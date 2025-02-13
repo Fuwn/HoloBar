@@ -1,11 +1,17 @@
 import SwiftUI
 
+#Preview { ContentView().environmentObject(CharacterFetcher()) }
+
 @main
 struct HoloBarApp: App {
     @StateObject private var fetcher = CharacterFetcher()
     @State private var showAvatars = false
 
     var body: some Scene {
+        Window("HoloBar", id: "main") {
+            ContentView().environmentObject(fetcher)
+        }
+
         MenuBarExtra {
             VStack {
                 if fetcher.characters.isEmpty {
@@ -50,27 +56,28 @@ struct HoloBarApp: App {
                     }
                 #endif
 
+                Button("Show UI") {
+                    for window in NSApp.windows {
+                        if window.identifier?.rawValue == "main" {
+                            window.makeKeyAndOrderFront(nil)
+
+                            return
+                        }
+                    }
+                }
+
                 Button("\(showAvatars ? "Hide" : "Show") Avatars") {
                     showAvatars.toggle()
                 }
 
-                Button("Refresh", action: refreshCharacters)
+                Button("Refresh", action: fetcher.refreshCharactersForToday)
                 Button("Quit", action: { NSApplication.shared.terminate(nil) })
             }
             .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
-                refreshCharacters()
+                fetcher.refreshCharactersForToday()
             }
         } label: {
             Text("HL")
-        }
-    }
-
-    private func refreshCharacters() {
-        let today = Calendar.current.dateComponents([.month, .day], from: Date())
-
-        if let month = today.month, let day = today.day {
-            fetcher.characters.removeAll()
-            fetcher.fetchCharacters(for: month, day: day)
         }
     }
 }

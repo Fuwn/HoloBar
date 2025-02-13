@@ -122,4 +122,13 @@ class CharacterFetcher: ObservableObject {
             self.characters = updatedCharacters
         }
     }
+
+    func refreshCharactersForToday() {
+        let today = Calendar.current.dateComponents([.month, .day], from: Date())
+
+        if let month = today.month, let day = today.day {
+            characters.removeAll()
+            fetchCharacters(for: month, day: day)
+        }
+    }
 }
