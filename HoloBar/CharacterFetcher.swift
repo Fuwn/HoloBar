@@ -13,12 +13,12 @@ class CharacterFetcher: ObservableObject {
   }
 
   func fetchCharacters(for month: Int, day: Int) {
-    let urlString =
+    let urlString =  // swiftlint:disable:next line_length
       "https://hololist.net/birthday/?birthday_month=\(String(format: "%02d", month))&birthday_day=\(String(format: "%02d", day))"
     guard let url = URL(string: urlString) else { return }
 
     let task = URLSession.shared.dataTask(with: url) { data, _, error in
-      guard let data = data, error == nil,
+      guard let data, error == nil,
         let html = String(data: data, encoding: .utf8)
       else { return }
 
@@ -82,13 +82,10 @@ class CharacterFetcher: ObservableObject {
     for character in characters {
       group.enter()
 
-      let task = URLSession.shared.dataTask(with: character.profileURL) {
-        data,
-        _,
-        error in
+      let task = URLSession.shared.dataTask(with: character.profileURL) { data, _, error in
         defer { group.leave() }
 
-        guard let data = data,
+        guard let data,
           error == nil,
           let html = String(data: data, encoding: .utf8)
         else { return }

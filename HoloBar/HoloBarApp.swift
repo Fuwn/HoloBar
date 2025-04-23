@@ -55,7 +55,7 @@ struct HoloBarApp: App {
         }
 
         Button("Refresh", action: refreshCharacters)
-        Button("Quit", action: { NSApplication.shared.terminate(nil) })
+        Button("Quit") { NSApplication.shared.terminate(nil) }
       }
       .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
         refreshCharacters()
